@@ -1,0 +1,18 @@
+# Binaries
+typing_vibes
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Go workspace file
+go.work
+
+# Config file (users will create their own)
+typing_vibes.yaml

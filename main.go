@@ -1,0 +1,21 @@
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"os"
+	"time"
+
+	tea "github.com/charmbracelet/bubbletea"
+)
+
+func main() {
+	rand.Seed(time.Now().UnixNano())
+
+	p := tea.NewProgram(initialModel(), tea.WithAltScreen())
+	if _, err := p.Run(); err != nil {
+		fmt.Printf("Error: %v", err)
+		os.Exit(1)
+	}
+}
+
