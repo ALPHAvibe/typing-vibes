@@ -12,14 +12,17 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tickMsg:
-		if m.started && !m.finished && m.config.MaxTimeLimit > 0 {
-			elapsed := time.Since(m.startTime)
-			maxDuration := time.Duration(m.config.MaxTimeLimit) * time.Second
-			if elapsed >= maxDuration {
-				m.finished = true
-				m.endTime = m.startTime.Add(maxDuration)
-				return m, nil
+		if m.started && !m.finished {
+			if m.config.MaxTimeLimit > 0 {
+				elapsed := time.Since(m.startTime)
+				maxDuration := time.Duration(m.config.MaxTimeLimit) * time.Second
+				if elapsed >= maxDuration {
+					m.finished = true
+					m.endTime = m.startTime.Add(maxDuration)
+					return m, nil
+				}
 			}
+			// Continue ticking to update elapsed time
 			return m, tickCmd()
 		}
 		return m, nil
@@ -260,9 +263,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if !m.started && len(m.currentInput) > 0 {
 			m.started = true
 			m.startTime = time.Now()
-			if m.config.MaxTimeLimit > 0 {
-				return m, tickCmd()
-			}
+			// Always start ticking to update elapsed time
+			return m, tickCmd()
 		}
 
 		// Check if finished (compare without leading whitespace)
