@@ -11,6 +11,9 @@ var (
 	correctStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("42"))
 
+	correctedStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("214")) // Orange/yellow for corrected chars
+
 	incorrectStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("196")).
 			Background(lipgloss.Color("52"))
@@ -47,3 +50,4 @@ var (
 			Foreground(lipgloss.Color("86")).
 			Bold(true)
 )
+

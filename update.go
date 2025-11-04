@@ -83,6 +83,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						m.currentInput = ""
 						m.started = false
 						m.finished = false
+						m.correctChars = 0
+						m.incorrectChars = 0
+						m.errorPositions = make(map[int]bool)
 					}
 				}
 				return m, nil
@@ -98,6 +101,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.targetText = funcText
 				m.currentFile = filePath
 				m.currentInput = ""
+				m.correctChars = 0
+				m.incorrectChars = 0
+				m.errorPositions = make(map[int]bool)
 				return m, nil
 			}
 
@@ -113,6 +119,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.currentInput = ""
 				m.started = false
 				m.finished = false
+				m.correctChars = 0
+				m.incorrectChars = 0
+				m.errorPositions = make(map[int]bool)
 				return m, nil
 			}
 
@@ -146,6 +155,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if targetPos < len(targetRunes) && targetRunes[targetPos] == '\n' {
 					// Just add newline - rendering will skip the leading whitespace automatically
 					m.currentInput += "\n"
+					// Count the newline as correct
+					m.correctChars++
 					return m, nil
 				}
 			}
@@ -163,6 +174,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.currentInput = ""
 				m.started = false
 				m.finished = false
+				m.correctChars = 0
+				m.incorrectChars = 0
+				m.errorPositions = make(map[int]bool)
 				return m, nil
 			}
 
@@ -217,9 +231,28 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.currentInput = m.currentInput[:len(m.currentInput)-1]
 				}
 			case tea.KeySpace:
+				// Get current position in target
+				pos := getCurrentPosition(m.currentInput, m.targetText)
+				// Check if this character is correct before adding
+				if isCharacterCorrect(m.currentInput, m.targetText, " ") {
+					m.correctChars++
+				} else {
+					m.incorrectChars++
+					m.errorPositions[pos] = true
+				}
 				m.currentInput += " "
 			case tea.KeyRunes:
-				m.currentInput += string(msg.Runes)
+				// Get current position in target
+				pos := getCurrentPosition(m.currentInput, m.targetText)
+				// Check if this character is correct before adding
+				char := string(msg.Runes)
+				if isCharacterCorrect(m.currentInput, m.targetText, char) {
+					m.correctChars++
+				} else {
+					m.incorrectChars++
+					m.errorPositions[pos] = true
+				}
+				m.currentInput += char
 			}
 		}
 

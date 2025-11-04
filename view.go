@@ -178,9 +178,9 @@ func (m model) renderInfoPane() string {
 	b.WriteString(statsStyle.Render(fmt.Sprintf("%d/%d (%.1f%%)", len(normalizedInput), len(normalizedTarget), progress)))
 	b.WriteString("\n\n")
 
-	// Final accuracy if finished
-	if m.finished {
-		accuracy := calculateAccuracy(m.targetText, m.currentInput)
+	// Live accuracy (shown during typing and when finished)
+	if m.started {
+		accuracy := calculateAccuracyFromCounters(m.correctChars, m.incorrectChars)
 		b.WriteString(labelStyle.Render("✓ Accuracy:"))
 		b.WriteString("\n")
 		b.WriteString(statsStyle.Render(fmt.Sprintf("%.1f%%", accuracy)))
@@ -267,12 +267,17 @@ func (m model) renderTypingPane(width int) string {
 						topLine.WriteString(incorrectStyle.Render(string(inputChar))) // Wrong - show in red
 					}
 
-					// Bottom line: target
+					// Bottom line: target with appropriate styling
 					var targetStyle lipgloss.Style
 					if inputChar == targetChar {
-						targetStyle = correctStyle
+						// Check if this position had an error before (corrected)
+						if m.errorPositions[targetPos] {
+							targetStyle = correctedStyle // Orange for corrected
+						} else {
+							targetStyle = correctStyle // Green for always correct
+						}
 					} else {
-						targetStyle = incorrectStyle
+						targetStyle = incorrectStyle // Red for current error
 					}
 
 					if isCursor {
@@ -314,3 +319,4 @@ func (m model) renderTypingPane(width int) string {
 
 	return result.String()
 }
+

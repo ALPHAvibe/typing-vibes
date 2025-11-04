@@ -11,21 +11,24 @@ import (
 type tickMsg time.Time
 
 type model struct {
-	targetText    string
-	currentInput  string
-	textInput     textinput.Model
-	startTime     time.Time
-	endTime       time.Time
-	started       bool
-	finished      bool
-	currentFile   string
-	width         int
-	height        int
-	err           error
-	config        config
-	showingConfig bool
-	configInputs  []textinput.Model
-	focusIndex    int
+	targetText     string
+	currentInput   string
+	textInput      textinput.Model
+	startTime      time.Time
+	endTime        time.Time
+	started        bool
+	finished       bool
+	currentFile    string
+	width          int
+	height         int
+	err            error
+	config         config
+	showingConfig  bool
+	configInputs   []textinput.Model
+	focusIndex     int
+	correctChars   int          // Track correct characters typed
+	incorrectChars int          // Track incorrect characters typed (even if corrected)
+	errorPositions map[int]bool // Track positions where errors occurred
 }
 
 func initialModel() model {
@@ -61,11 +64,12 @@ func initialModel() model {
 	inputs[3].Width = 20
 
 	return model{
-		textInput:    ti,
-		config:       cfg,
-		width:        120,
-		height:       24,
-		configInputs: inputs,
+		textInput:      ti,
+		config:         cfg,
+		width:          120,
+		height:         24,
+		configInputs:   inputs,
+		errorPositions: make(map[int]bool),
 	}
 }
 
